@@ -1,0 +1,60 @@
+name: FEMA Poverty Analysis Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pandas numpy matplotlib seaborn openpyxl scipy requests
+
+      - name: Validate data loads
+        run: |
+          python -c "
+          from src.fema_data import load_states, load_annual, load_types, load_poverty_correlation
+          states = load_states()
+          assert len(states) == 25, f'Expected 25 states, got {len(states)}'
+          assert 'poverty' in states.columns
+          assert states['total'].min() > 0
+          print(f'✓ State data: {len(states)} records')
+
+          annual = load_annual()
+          assert len(annual) == 24
+          assert annual['cost_B'].sum() > 1000
+          print(f'✓ Annual data: {len(annual)} years, \${annual[\"cost_B\"].sum():.0f}B total')
+          "
+
+      - name: Run statistical tests
+        run: python src/stats_analysis.py
+
+      - name: Validate recovery gap is significant
+        run: |
+          python -c "
+          from src.stats_analysis import recovery_time_test
+          r = recovery_time_test()
+          assert r['ratio'] > 4.0, 'Recovery gap should be at least 4x'
+          assert r['significant'], 'Recovery gap should be statistically significant'
+          print(f'✓ Recovery gap: {r[\"ratio\"]}x, p={r[\"p_value\"]}')
+          "
+
+      - name: Validate 2017 is most expensive year
+        run: |
+          python -c "
+          from src.fema_data import load_annual
+          df = load_annual()
+          worst = df.nlargest(1, 'cost_B').iloc[0]
+          assert int(worst['year']) == 2017, f'Expected 2017, got {int(worst[\"year\"])}'
+          assert worst['cost_B'] > 300
+          print(f'✓ 2017 confirmed as worst: \${worst[\"cost_B\"]:.0f}B')
+          "
