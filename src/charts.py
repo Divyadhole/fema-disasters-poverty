@@ -82,20 +82,20 @@ def chart_poverty_disasters_scatter(df_states, path):
 
         for _, row in df_states.iterrows():
             c = REGION_COLORS.get(row["region"], P["mid"])
-            ax.scatter(row["poverty_rate_2022"], row["total"],
+            ax.scatter(row["poverty"], row["total"],
                        color=c, s=90, alpha=0.85, zorder=4,
                        edgecolors="white", linewidths=0.7)
-            if row["total"] > 220 or row["poverty_rate_2022"] > 18:
+            if row["total"] > 220 or row["poverty"] > 18:
                 ax.annotate(row["state"].split()[0],
-                            (row["poverty_rate_2022"], row["total"]),
+                            (row["poverty"], row["total"]),
                             fontsize=8, color=P["neutral"],
                             xytext=(4, 4), textcoords="offset points")
 
         # Regression line
         slope, intercept, r, p, _ = stats.linregress(
-            df_states["poverty_rate_2022"], df_states["total"])
-        xr = np.linspace(df_states["poverty_rate_2022"].min(),
-                          df_states["poverty_rate_2022"].max(), 100)
+            df_states["poverty"], df_states["total"])
+        xr = np.linspace(df_states["poverty"].min(),
+                          df_states["poverty"].max(), 100)
         ax.plot(xr, slope*xr+intercept, "--",
                 color=P["neutral"], lw=1.4, alpha=0.7,
                 label=f"Trend: r={r:.2f}, p={p:.3f}")
@@ -174,7 +174,7 @@ def chart_state_ranking(df_states, path):
         for bar, row in zip(bars, top.itertuples()):
             ax.text(bar.get_width()+2,
                     bar.get_y()+bar.get_height()/2,
-                    f"{row.total}  ({row.poverty_rate_2022:.1f}% poverty)",
+                    f"{row.total}  ({row.poverty:.1f}% poverty)",
                     va="center", fontsize=8.5)
 
         patches = [mpatches.Patch(color=v, alpha=0.88, label=k)

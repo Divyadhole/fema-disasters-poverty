@@ -5,10 +5,10 @@
 -- ============================================================
 
 -- 1. State ranking: most disaster declarations vs poverty rate
-SELECT state, total, major, poverty_rate_2022,
+SELECT state, total, major, poverty,
     RANK() OVER (ORDER BY total DESC)              AS disaster_rank,
-    RANK() OVER (ORDER BY poverty_rate_2022 DESC)  AS poverty_rank,
-    ROUND(total * poverty_rate_2022 / 100.0, 1)    AS combined_burden_score
+    RANK() OVER (ORDER BY poverty DESC)  AS poverty_rank,
+    ROUND(total * poverty / 100.0, 1)    AS combined_burden_score
 FROM state_disasters
 ORDER BY total DESC;
 
@@ -54,12 +54,12 @@ ORDER BY pct_low_income_counties DESC;
 
 
 -- 6. Flood-prone states: correlation with poverty
-SELECT state, flood, total, poverty_rate_2022,
+SELECT state, flood, total, poverty,
     flood_share,
     ROUND(100.0 * flood / total, 1) AS flood_pct_of_all,
-    CASE WHEN poverty_rate_2022 > 15 AND flood_share > 30
+    CASE WHEN poverty > 15 AND flood_share > 30
          THEN 'High Risk / High Poverty'
-         WHEN poverty_rate_2022 > 15
+         WHEN poverty > 15
          THEN 'High Poverty'
          WHEN flood_share > 30
          THEN 'Flood Prone'
@@ -74,7 +74,7 @@ SELECT region,
     COUNT(*)                          AS states,
     SUM(total)                        AS total_declarations,
     ROUND(AVG(total), 1)              AS avg_per_state,
-    ROUND(AVG(poverty_rate_2022), 1)  AS avg_poverty_rate,
+    ROUND(AVG(poverty), 1)  AS avg_poverty_rate,
     ROUND(AVG(avg_per_yr), 1)         AS avg_declarations_per_year
 FROM state_disasters
 GROUP BY region

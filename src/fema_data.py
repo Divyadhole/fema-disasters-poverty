@@ -27,7 +27,7 @@ import numpy as np
 
 STATE_DISASTERS = {
     # state: {total_declarations, major_disasters, hurricanes,
-    #         floods, fires, avg_per_year, poverty_rate_2022}
+    #         floods, fires, avg_per_year, poverty}
     "Texas":          {"total":382,"major":312,"hurricane":28,"flood":89,"fire":42,"avg_per_yr":16.8,"poverty":14.1},
     "California":     {"total":344,"major":278,"hurricane":0, "flood":52,"fire":98,"avg_per_yr":15.1,"poverty":11.6},
     "Florida":        {"total":298,"major":241,"hurricane":47,"flood":61,"fire":12,"avg_per_yr":13.1,"poverty":12.7},
@@ -110,7 +110,7 @@ POVERTY_DISASTER_CORRELATION = {
 def load_states() -> pd.DataFrame:
     rows = [{"state": s, **v} for s, v in STATE_DISASTERS.items()]
     df = pd.DataFrame(rows)
-    df["disaster_per_poverty_pt"] = (df["total"] / df["poverty_rate_2022"]).round(2)
+    df["disaster_per_poverty_pt"] = (df["total"] / df["poverty"]).round(2)
     df["flood_share"]    = (df["flood"]    / df["total"] * 100).round(1)
     df["hurricane_share"]= (df["hurricane"]/ df["total"] * 100).round(1)
     df["fire_share"]     = (df["fire"]     / df["total"] * 100).round(1)

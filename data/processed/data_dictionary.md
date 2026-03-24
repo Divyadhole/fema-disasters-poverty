@@ -22,7 +22,7 @@
 | flood | INT | Flood-related declarations |
 | fire | INT | Fire-related declarations |
 | avg_per_yr | FLOAT | Average declarations per year |
-| poverty_rate_2022 | FLOAT | % of population below poverty line (Census SAIPE 2022) |
+| poverty | FLOAT | % of population below poverty line (Census SAIPE 2022) |
 | flood_share | FLOAT | Floods as % of total declarations |
 | region | VARCHAR | Geographic region |
 
